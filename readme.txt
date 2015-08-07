@@ -1,4 +1,4 @@
-=== Twig Anything API Endpoints ===
+=== API Endpoints ===
 Contributors: meglio
 Tags: api, rest, restful, integration, api client, api endpoint, access point, json, xml, twig
 Requires at least: 3.6.1
