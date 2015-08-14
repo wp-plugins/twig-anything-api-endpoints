@@ -17,6 +17,11 @@ class OptionsPage
     }
 
     public function echoAdminPage() {
+        if (Plugin::isMissingTwigAnythingPlugin()) {
+            echo Plugin::getMissingTwigAnythingPluginErrorHtml();
+            return;
+        }
+
         # Generate a nonce so we can check for it later
         $nonce = wp_create_nonce('twig_anything_post_meta_box');
 

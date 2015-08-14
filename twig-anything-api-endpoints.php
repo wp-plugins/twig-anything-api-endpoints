@@ -3,7 +3,7 @@
 Plugin Name: API Endpoints
 Plugin URI:  http://twiganything.com/wordpress-api-endpoints
 Description: Add WordPress API endpoints and access your site's data in JSON, XML, RSS/ATOM or YAML.
-Version:     1.0
+Version:     1.1
 Author:      Anton Andriievskyi
 Author URI:  https://twiganything.com/author
 License:     GPL2
@@ -78,6 +78,8 @@ JSON;
         add_action('admin_menu', array($this, 'onAdminMenu'));
         add_action('admin_enqueue_scripts', array($this, 'onAdminEnqueueScripts'));
         add_action('wp_ajax_twig_anything_api_endpoint_save_settings', array($this, 'onAjaxSaveSettings'));
+        add_action('admin_notices', array($this, 'onAdminNotices'));
+        add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($this, 'onPluginActionLinks'));
     }
 
     /**
@@ -158,6 +160,12 @@ JSON;
 
     public static function getDefaultHeaders() {
         return array(
+            # Allow ajax requests to the API from domains other than this WordPress site
+            array(
+                'header' => 'Access-Control-Allow-Origin: *',
+            ),
+
+            # Disable any kind of caching
             array(
                 'header' => 'Cache-Control: no-cache, no-store, must-revalidate',
             ),
@@ -461,8 +469,14 @@ JSON;
      */
     public function onAdminEnqueueScripts() {
         $screen = get_current_screen();
-        # Only React component on our settings page
+
+        # Load React component for our settings page only
         if (!is_admin() || $screen->id !== 'settings_page_twig_anything_api_endpoint_settings_page') {
+            return;
+        }
+
+        # Do not load React component if no TwigAnything class found
+        if (!class_exists('\\TwigAnything\\TwigAnything')) {
             return;
         }
 
@@ -483,6 +497,43 @@ JSON;
         require_once __DIR__.'/OptionsPage.php';
         $optionsPage = new OptionsPage;
         $optionsPage->save();
+    }
+
+    public static function isMissingTwigAnythingPlugin() {
+        return !is_plugin_active('twig-anything/twig-anything.php');
+    }
+
+    public static function getMissingTwigAnythingPluginErrorHtml() {
+        return '<div class="error"><p>'
+            . __('Plugin <strong>API Endpoints</strong> is an add-on for <a href="https://twiganything.com" target="_blank">Twig Anything</a> plugin - please install and activate that first.', 'twig-anything-api-endpoints')
+            . '</p></div>';
+    }
+
+    /**
+     * 'admin_notices' WordPress action
+     */
+    public function onAdminNotices() {
+        $screen = get_current_screen();
+        if ($screen->id == 'plugins' && self::isMissingTwigAnythingPlugin()) {
+            echo self::getMissingTwigAnythingPluginErrorHtml();
+        }
+    }
+
+    /**
+     * 'plugin_action_links_xxx' WordPress filter
+     * @param array $links
+     * @return array
+     */
+    public function onPluginActionLinks($links) {
+        # Settings
+        $optionsPage = 'options-general.php?page=twig_anything_api_endpoint_settings_page';
+        $optionsUrl = get_admin_url(null, $optionsPage);
+        $links[] = '<a href="'.esc_url($optionsUrl).'">Settings</a>';
+
+        # Support and community
+        $links[] = '<a href="http://forum.twiganything.com" target="_blank">Support and community</a>';
+
+        return $links;
     }
 }
 
