@@ -1,6 +1,6 @@
 === API Endpoints ===
 Contributors: meglio
-Tags: api, rest, restful, integration, api client, api endpoint, access point, json, xml, twig
+Tags: api, REST, RESTful, integration, api client, api endpoint, api access, access point, endpoint, JSON, XML, CSV, Twig, URI, URL, share data, access data, api format, api output, ajax, http, links, protected api, api authentication, cache api, api interface, http interface, web service, convert to api, create api, add api,SOAP, REST style, api request, api response, api location, api url, api uri, endpoint url, multiple APIs, JSON API, XML API, CSV API, database API, API from database, http headers, API headers, api speed
 Requires at least: 3.6.1
 Tested up to: 4.2.3
 Stable tag: trunk
